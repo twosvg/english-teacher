@@ -1,5 +1,6 @@
 package com.encoach.app
 
+import android.app.AlertDialog
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,6 +11,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Handler
@@ -214,6 +216,7 @@ class FloatingService : Service() {
         var startX = 0
         var startY = 0
         var dragged = false
+        var downTime = 0L
 
         view.setOnTouchListener { v, event ->
             when (event.actionMasked) {
@@ -223,6 +226,7 @@ class FloatingService : Service() {
                     startX = params.x
                     startY = params.y
                     dragged = false
+                    downTime = event.eventTime
                     true
                 }
 
@@ -243,7 +247,13 @@ class FloatingService : Service() {
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (!dragged) showPanel()
+                    if (!dragged) {
+                        if (event.eventTime - downTime >= 500L) {
+                            confirmClose()
+                        } else {
+                            showPanel()
+                        }
+                    }
                     true
                 }
 
@@ -271,9 +281,61 @@ class FloatingService : Service() {
         }
     }
 
+    /** 长按小球：确认后关掉悬浮窗。 */
+    private fun confirmClose() {
+        val night = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        val themeRes = if (night) {
+            android.R.style.Theme_Material_Dialog_Alert
+        } else {
+            android.R.style.Theme_Material_Light_Dialog_Alert
+        }
+        try {
+            val dialog = AlertDialog.Builder(this, themeRes)
+                .setTitle(R.string.bubble_close_title)
+                .setMessage(R.string.bubble_close_message)
+                .setPositiveButton(R.string.bubble_close_ok) { _, _ -> stopFloating() }
+                .setNegativeButton(R.string.settings_cancel, null)
+                .create()
+            dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+            dialog.show()
+        } catch (t: Throwable) {
+            stopFloating()
+        }
+    }
+
+    private fun stopFloating() {
+        hidePanel()
+        removeBubble()
+        stopForeground(true)
+        stopSelf()
+    }
+
+    /** 系统切深色/浅色时重建界面，否则颜色会停在旧主题。 */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val hadPanel = panel != null
+        val keptText = sourceView?.text?.toString().orEmpty()
+        val keptResult = transcript.toString()
+
+        if (hadPanel) hidePanel()
+        removeBubble()
+        if (Settings.canDrawOverlays(this)) addBubble()
+
+        if (hadPanel && keptText.isNotBlank()) {
+            main.postDelayed({
+                showPanel(false)
+                sourceView?.setText(keptText)
+                transcript.setLength(0)
+                transcript.append(keptResult)
+                setResult(keptResult)
+            }, 150)
+        }
+    }
+
     // ---------------------------------------------------------------- 悬浮面板
 
-    private fun showPanel() {
+    private fun showPanel(autoRead: Boolean = true) {
         if (panel != null) return
         val view = LayoutInflater.from(this).inflate(R.layout.view_overlay_panel, null)
         val height = (resources.displayMetrics.heightPixels * 0.72f).toInt()
@@ -291,6 +353,7 @@ class FloatingService : Service() {
         sourceView = view.findViewById(R.id.overlaySource)
         followView = view.findViewById(R.id.overlayFollowUp)
         scroll = view.findViewById(R.id.overlayScroll)
+        Typefaces.body(this)?.let { typeface -> resultView?.typeface = typeface }
 
         view.findViewById<View>(R.id.overlayClose).setOnClickListener { hidePanel() }
         view.findViewById<View>(R.id.overlayCloseBottom).setOnClickListener { hidePanel() }
@@ -314,7 +377,9 @@ class FloatingService : Service() {
             return
         }
 
-        main.postDelayed({ pullClipboard(false) }, 350)
+        if (autoRead) {
+            main.postDelayed({ pullClipboard(false) }, 350)
+        }
     }
 
     private fun hidePanel() {
@@ -351,11 +416,18 @@ class FloatingService : Service() {
             return
         }
         field.setText(text)
-        analyze(pickMode(text))
+        clearHighlight()
+        setResult(getString(R.string.overlay_pick_hint))
     }
 
-    private fun pickMode(text: String): Mode =
-        if (text.any { it in '\u4e00'..'\u9fff' }) Mode.TRANSLATE else Mode.WORD
+    /** 只填字不解析，所以一个栏目都不选中，等用户自己点。 */
+    private fun clearHighlight() {
+        val view = panel ?: return
+        view.findViewById<TextView>(R.id.chipWord).isSelected = false
+        view.findViewById<TextView>(R.id.chipSentence).isSelected = false
+        view.findViewById<TextView>(R.id.chipTranslate).isSelected = false
+        view.findViewById<TextView>(R.id.chipPolish).isSelected = false
+    }
 
     private fun analyze(mode: Mode) {
         val field = sourceView ?: return
@@ -414,7 +486,8 @@ class FloatingService : Service() {
     }
 
     private fun copyResult() {
-        val text = transcript.toString().ifEmpty { resultView?.text?.toString().orEmpty() }
+        val raw = transcript.toString().ifEmpty { resultView?.text?.toString().orEmpty() }
+        val text = Markdown.toPlain(raw)
         if (text.isBlank()) {
             toast(getString(R.string.err_nothing_to_copy))
             return
@@ -436,7 +509,15 @@ class FloatingService : Service() {
 
     private fun setResult(text: String) {
         val view = resultView ?: return
-        view.text = text
+        if (text.isEmpty()) {
+            view.text = ""
+        } else {
+            view.text = Markdown.render(
+                text,
+                getColor(R.color.accent),
+                getColor(R.color.text_secondary)
+            )
+        }
         scroll?.post { scroll?.fullScroll(View.FOCUS_DOWN) }
     }
 

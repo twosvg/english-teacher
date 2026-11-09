@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 主界面：自带的 Material ActionBar，标题显示「英文老师」 -->
+    <!-- 主界面：深蓝顶栏 -->
     <style name="AppTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
-        <item name="android:colorPrimary">@color/accent</item>
+        <item name="android:colorPrimary">@color/appbar_bg</item>
         <item name="android:colorPrimaryDark">@color/accent_dark</item>
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:windowBackground">@color/page_bg</item>
         <item name="android:statusBarColor">@color/accent_dark</item>
     </style>
 
-    <!-- 选词卡片：半屏对话框样式 -->
+    <!-- 选词卡片 -->
     <style name="CardDialogTheme" parent="@android:style/Theme.Material.Light.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsFloating">true</item>
@@ -26,19 +26,19 @@
         <item name="android:colorAccent">@color/accent</item>
     </style>
 
-    <!-- 输入框 -->
+    <!-- 输入框：16sp -->
     <style name="InputEditText" parent="@android:style/Widget.Material.EditText">
         <item name="android:background">@drawable/bg_input</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:paddingLeft">13dp</item>
+        <item name="android:paddingRight">13dp</item>
+        <item name="android:paddingTop">11dp</item>
+        <item name="android:paddingBottom">11dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textColorHint">@color/text_hint</item>
     </style>
 
-    <!-- 卡片顶部三个切换标签 -->
+    <!-- 切换胶囊：14sp -->
     <style name="CardTab">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -46,15 +46,15 @@
         <item name="android:background">@drawable/tab_bg</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="android:paddingLeft">14dp</item>
-        <item name="android:paddingRight">14dp</item>
-        <item name="android:paddingTop">7dp</item>
-        <item name="android:paddingBottom">7dp</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
         <item name="android:textColor">@color/tab_text</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
-    <!-- 卡片底部按钮：无边框文字按钮 -->
+    <!-- 底部文字按钮 -->
     <style name="FlatButton" parent="@android:style/Widget.Material.Button.Borderless">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -63,13 +63,13 @@
         <item name="android:paddingRight">12dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/accent</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">15sp</item>
     </style>
 
-    <!-- 主界面四个功能按钮 -->
+    <!-- 主界面功能按钮 -->
     <style name="ChipButton" parent="@android:style/Widget.Material.Button.Borderless">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">42dp</item>
+        <item name="android:layout_height">44dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_marginStart">3dp</item>
         <item name="android:layout_marginEnd">3dp</item>
@@ -80,6 +80,15 @@
         <item name="android:paddingRight">0dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/chip_text</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- 解析正文：16sp + 5dp 行距（字体在代码里换成楷体） -->
+    <style name="ResultText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineSpacingExtra">5dp</item>
     </style>
 </resources>

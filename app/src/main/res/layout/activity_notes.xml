@@ -24,7 +24,7 @@
         android:padding="28dp"
         android:text="@string/notes_empty"
         android:textColor="@color/text_secondary"
-        android:textSize="14sp"
+        android:textSize="15sp"
         android:visibility="gone" />
 
 </FrameLayout>

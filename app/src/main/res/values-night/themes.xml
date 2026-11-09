@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 夜间：深色父主题，顶栏用深灰而不是蓝，避免整块发亮 -->
+    <style name="AppTheme" parent="@android:style/Theme.Material">
+        <item name="android:colorPrimary">@color/appbar_bg</item>
+        <item name="android:colorPrimaryDark">@color/accent_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/page_bg</item>
+        <item name="android:statusBarColor">@color/accent_dark</item>
+    </style>
+
+    <style name="CardDialogTheme" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimAmount">0.55</item>
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+
+    <style name="SettingsDialogTheme" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+</resources>

@@ -44,7 +44,7 @@ class MainActivity : Activity() {
             val now = SystemClock.uptimeMillis()
             if (now - lastFlush >= 60L) {
                 lastFlush = now
-                resultView.text = buffer.toString()
+                resultView.text = render(buffer.toString())
                 scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
             }
         }
@@ -52,7 +52,7 @@ class MainActivity : Activity() {
         override fun onFinish(full: String) {
             buffer.setLength(0)
             buffer.append(full)
-            resultView.text = full
+            resultView.text = render(full)
             setRunning(false)
             statusView.text = getString(R.string.status_done)
         }
@@ -77,6 +77,7 @@ class MainActivity : Activity() {
         scrollView = findViewById(R.id.resultScroll)
         stopButton = findViewById(R.id.btnStop)
         client = DeepSeekClient()
+        Typefaces.body(this)?.let { typeface -> resultView.typeface = typeface }
 
         findViewById<Button>(R.id.btnWord).setOnClickListener { start(Mode.WORD) }
         findViewById<Button>(R.id.btnSentence).setOnClickListener { start(Mode.SENTENCE) }
@@ -227,7 +228,8 @@ class MainActivity : Activity() {
     }
 
     private fun copyResult() {
-        val text = buffer.toString().ifEmpty { resultView.text.toString() }
+        val raw = buffer.toString().ifEmpty { resultView.text.toString() }
+        val text = Markdown.toPlain(raw)
         if (text.isBlank()) {
             toast(R.string.err_nothing_to_copy)
             return
@@ -240,6 +242,9 @@ class MainActivity : Activity() {
         manager.setPrimaryClip(ClipData.newPlainText(getString(R.string.app_name), text))
         toast(R.string.copied)
     }
+
+    private fun render(text: String): CharSequence =
+        Markdown.render(text, getColor(R.color.accent), getColor(R.color.text_secondary))
 
     private fun hideKeyboard() {
         val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager ?: return

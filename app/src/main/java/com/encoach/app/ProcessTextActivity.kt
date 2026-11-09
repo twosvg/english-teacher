@@ -46,7 +46,7 @@ class ProcessTextActivity : Activity() {
             if (firstDelta || now - lastFlush >= 60L) {
                 firstDelta = false
                 lastFlush = now
-                resultView.text = buffer.toString()
+                resultView.text = render(buffer.toString())
                 scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
             }
         }
@@ -54,7 +54,7 @@ class ProcessTextActivity : Activity() {
         override fun onFinish(full: String) {
             buffer.setLength(0)
             buffer.append(full)
-            resultView.text = full
+            resultView.text = render(full)
             statusView.text = getString(R.string.status_done)
         }
 
@@ -78,6 +78,7 @@ class ProcessTextActivity : Activity() {
         tabWord = findViewById(R.id.tabWord)
         tabSentence = findViewById(R.id.tabSentence)
         tabCheck = findViewById(R.id.tabCheck)
+        Typefaces.body(this)?.let { typeface -> resultView.typeface = typeface }
 
         resultView.setOnLongClickListener {
             copyAll()
@@ -202,12 +203,15 @@ class ProcessTextActivity : Activity() {
     }
 
     private fun copyAll() {
-        val text = buffer.toString().ifEmpty { resultView.text.toString() }
+        val text = Markdown.toPlain(buffer.toString().ifEmpty { resultView.text.toString() })
         if (text.isBlank()) return
         val manager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
         manager.setPrimaryClip(ClipData.newPlainText(getString(R.string.app_name), text))
         Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
     }
+
+    private fun render(text: String): CharSequence =
+        Markdown.render(text, getColor(R.color.accent), getColor(R.color.text_secondary))
 
     private fun containsChinese(text: String): Boolean = text.any { it in '\u4e00'..'\u9fff' }
 

@@ -72,10 +72,15 @@ class NotesActivity : Activity() {
     private fun showNote(note: NotesStore.Note) {
         val scroll = ScrollView(this)
         val text = TextView(this)
-        text.text = note.content
+        text.text = Markdown.render(
+            note.content,
+            getColor(R.color.accent),
+            getColor(R.color.text_secondary)
+        )
+        Typefaces.body(this)?.let { typeface -> text.typeface = typeface }
         text.setTextIsSelectable(true)
-        text.textSize = 15f
-        text.setLineSpacing(dp(4).toFloat(), 1f)
+        text.textSize = 16f
+        text.setLineSpacing(dp(5).toFloat(), 1f)
         text.setPadding(dp(18), dp(14), dp(18), dp(14))
         scroll.addView(text)
 
