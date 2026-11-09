@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">英文老师</string>
+
+    <!-- 主界面 -->
+    <string name="main_headline">选中就讲，不离开原 App</string>
+    <string name="main_subtitle">也可以在这里手动输入：英文单词、英文长句、要翻译的中文、待批改的英文。</string>
+    <string name="input_hint">输入英文单词或句子，或要翻译的中文…</string>
+
+    <string name="btn_word">生词</string>
+    <string name="btn_sentence">拆句</string>
+    <string name="btn_translate">汉译英</string>
+    <string name="btn_polish">批改</string>
+
+    <string name="action_stop">停止</string>
+    <string name="action_regenerate">重新生成</string>
+    <string name="action_copy">复制</string>
+    <string name="action_close">关闭</string>
+    <string name="action_settings">设置</string>
+
+    <string name="status_ready">就绪</string>
+    <string name="status_generating">正在生成…</string>
+    <string name="status_done">完成</string>
+    <string name="status_error">出错了</string>
+    <string name="status_stopped">已停止</string>
+    <string name="loading">正在思考…</string>
+
+    <string name="result_placeholder">结果会显示在这里。\n\n• 点「生词」：词性音标、释义、在这句话里的意思、搭配、例句、易混词\n• 点「拆句」：主干、修饰成分、断句、直译与顺译、句型标志、难在哪\n• 点「汉译英」：最推荐 / 很随意 / 正式一点 三版，逐条说明\n• 点「批改」：错误清单、更自然的说法、中式英语成因、一句话要点\n\n在 X、Instagram、Chrome 里选中英文，选择菜单里的「英文老师」，会直接弹出卡片。</string>
+
+    <!-- 卡片 -->
+    <string name="tab_word">讲解</string>
+    <string name="tab_sentence">拆句</string>
+    <string name="tab_check">批改</string>
+    <string name="selection_prefix">选中：%1$s</string>
+    <string name="card_hint_chinese_word">这段是中文。\n\n「讲解」针对英文单词或短语；要把中文翻成英文，请点上面的「批改」。</string>
+    <string name="card_hint_chinese_sentence">「拆句」只处理英文句子。\n\n这段是中文，请点「批改」做汉译英。</string>
+
+    <!-- 设置 -->
+    <string name="settings">设置</string>
+    <string name="settings_title">设置</string>
+    <string name="settings_intro">填一个 OpenAI 兼容接口的密钥即可使用。密钥只存在这台手机的私有目录里，不会上传到任何其他地方。</string>
+    <string name="settings_api_key">API Key</string>
+    <string name="settings_api_key_hint">sk-…</string>
+    <string name="settings_base_url">接口地址 baseUrl</string>
+    <string name="settings_base_url_hint">https://api.deepseek.com</string>
+    <string name="settings_base_hint">默认 https://api.deepseek.com，会自动补上 /v1/chat/completions。</string>
+    <string name="settings_model">模型名</string>
+    <string name="settings_model_hint">deepseek-chat</string>
+    <string name="settings_show_key">显示密钥</string>
+    <string name="settings_save">保存</string>
+    <string name="settings_cancel">取消</string>
+    <string name="settings_saved">已保存</string>
+
+    <!-- 错误与提示 -->
+    <string name="err_empty_input">先输入一段文字，或选中一段文字。</string>
+    <string name="err_no_key">还没配置 API Key。先点右上角「设置」填好，再试。</string>
+    <string name="err_no_key_card">还没配置 API Key。\n\n先点「关闭」回到原 App，打开「英文老师」主界面，点右上角「设置」填入 API Key，再回来重新选中文字。</string>
+    <string name="err_need_english">这个功能需要英文输入。</string>
+    <string name="err_need_chinese">汉译英需要输入中文；如果是要改英文，请点「批改」。</string>
+    <string name="err_no_text">没读到选中的文字。请重新选中后再点「英文老师」。</string>
+    <string name="err_nothing_to_copy">还没有内容可以复制。</string>
+    <string name="copied">已复制</string>
+</resources>
