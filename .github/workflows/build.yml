@@ -27,15 +27,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # 只装 platform-tools。默认值里的 tools 包已被 Google 从 SDK 仓库删除，
-      # 沿用默认值会报 "Failed to find package 'tools'" 直接失败。
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         continue-on-error: true
         with:
           packages: 'platform-tools'
 
-      # 兜底：即使上面的 action 失败，runner 镜像自带的 SDK 仍然可用。
       - name: Install Android SDK packages
         continue-on-error: true
         run: |
@@ -59,6 +56,15 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME"
           ls "$ANDROID_HOME/platforms" 2>/dev/null || true
           ls "$ANDROID_HOME/build-tools" 2>/dev/null || true
+
+      - name: Fetch bundled font
+        run: |
+          mkdir -p app/src/main/assets/fonts
+          curl -L --fail --retry 3 --silent --show-error \
+            -o app/src/main/assets/fonts/LXGWWenKai-Regular.ttf \
+            "https://github.com/lxgw/LxgwWenKai/releases/download/v1.530/LXGWWenKai-Regular.ttf" \
+            || echo "字体下载失败，将回退系统字体"
+          ls -lh app/src/main/assets/fonts || true
 
       - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
