@@ -1,12 +1,18 @@
 package com.encoach.app
 
+import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -28,6 +34,8 @@ class MainActivity : Activity() {
 
     private val buffer = StringBuilder()
     private var lastFlush = 0L
+    private var pendingFloatingStart = false
+    private val requestNotificationCode = 1001
 
     private val listener = object : DeepSeekClient.Listener {
         override fun onDelta(delta: String) {
@@ -74,6 +82,10 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.btnSentence).setOnClickListener { start(Mode.SENTENCE) }
         findViewById<Button>(R.id.btnTranslate).setOnClickListener { start(Mode.TRANSLATE) }
         findViewById<Button>(R.id.btnPolish).setOnClickListener { start(Mode.POLISH) }
+        findViewById<Button>(R.id.btnFloating).setOnClickListener { toggleFloating() }
+        findViewById<Button>(R.id.btnNotes).setOnClickListener {
+            startActivity(Intent(this, NotesActivity::class.java))
+        }
 
         stopButton.setOnClickListener {
             client.cancel()
@@ -105,6 +117,54 @@ class MainActivity : Activity() {
         if (this::client.isInitialized) {
             client.close()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (pendingFloatingStart && Settings.canDrawOverlays(this)) {
+            pendingFloatingStart = false
+            askNotificationPermissionIfNeeded()
+            FloatingService.start(this)
+            toast(R.string.floating_started)
+        }
+    }
+
+    private fun toggleFloating() {
+        if (FloatingService.isRunning) {
+            FloatingService.stop(this)
+            toast(R.string.floating_stopped)
+            return
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.overlay_permission_title)
+                .setMessage(R.string.overlay_permission_message)
+                .setPositiveButton(R.string.overlay_permission_open) { _, _ ->
+                    pendingFloatingStart = true
+                    try {
+                        startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:" + packageName)
+                            )
+                        )
+                    } catch (t: Throwable) {
+                        startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+                    }
+                }
+                .setNegativeButton(R.string.settings_cancel, null)
+                .show()
+            return
+        }
+        askNotificationPermissionIfNeeded()
+        FloatingService.start(this)
+        toast(R.string.floating_started)
+    }
+
+    private fun askNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
+        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), requestNotificationCode)
     }
 
     private fun start(mode: Mode) {
@@ -145,7 +205,7 @@ class MainActivity : Activity() {
         val hasLatin = text.any { (it in 'a'..'z') || (it in 'A'..'Z') }
         return when (mode) {
             Mode.TRANSLATE -> {
-                if (hasChinese) {
+                if (hasChinese || hasLatin) {
                     true
                 } else {
                     toast(R.string.err_need_chinese)

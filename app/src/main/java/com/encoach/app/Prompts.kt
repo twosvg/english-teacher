@@ -23,10 +23,19 @@ object Prompts {
 
     fun build(mode: Mode, text: String): JSONArray {
         val messages = JSONArray()
-        messages.put(JSONObject().put("role", "system").put("content", SYSTEM_PROMPT))
-        messages.put(JSONObject().put("role", "user").put("content", userPrompt(mode, text)))
+        messages.put(systemMessage())
+        messages.put(userMessage(mode, text))
         return messages
     }
+
+    fun systemMessage(): JSONObject =
+        JSONObject().put("role", "system").put("content", SYSTEM_PROMPT)
+
+    fun userMessage(mode: Mode, text: String): JSONObject =
+        JSONObject().put("role", "user").put("content", userPrompt(mode, text))
+
+    fun plainUserMessage(text: String): JSONObject =
+        JSONObject().put("role", "user").put("content", text)
 
     private fun userPrompt(mode: Mode, text: String): String = when (mode) {
         Mode.WORD -> wordPrompt(text)
@@ -98,18 +107,19 @@ object Prompts {
 
     private fun translatePrompt(text: String): String {
         val guide = """
-            用户给了一句中文，要翻成英文。请给三个版本，每个版本都要能直接拿去用，并且说清为什么这么翻。
+            用户给了一段文字要翻译。先判断方向：中文就译成英文；英文就译成中文；中英混写就先给一版整理后的英文，再给中文。
+            然后给三个版本，每个版本都要能直接拿去用，并说清为什么这么翻。
 
             【最推荐】
-            英文一行。
+            译文一行。
             为什么：一到两句，说清选词和句式的考虑。
 
             【很随意】
-            英文一行，像母语者发消息、当面聊天时说的。
+            译文一行，像母语者发消息、当面聊天时说的。
             为什么：一到两句。
 
             【正式一点】
-            英文一行，像邮件、报告、正式场合说的。
+            译文一行，像邮件、报告、正式场合说的。
             为什么：一到两句。
 
             【用词提醒】
@@ -117,18 +127,20 @@ object Prompts {
 
             要求：
             • 三版必须是真的不同说法，不能只换一两个词。
-            • 英文要地道，不要逐字硬翻；英文里不要出现中文标点。
-            • 如果中文本身有歧义，先用一句话说清你按哪种理解翻，再给三版。
-            • 每版英文都必须是完整、能直接发出去的句子。
+            • 译文要地道，不要逐字硬翻。
+            • 中文译成英文时，英文里不要出现中文标点。
+            • 英文译成中文时，要分清口语版、书面版、正式版，不要翻译腔，不要逐字对译。
+            • 如果原文有歧义，先用一句话说清你按哪种理解翻，再给三版。
+            • 每个版本都必须是完整、能直接发出去的句子。
 
-            用户的中文：
+            用户要翻译的内容：
         """.trimIndent()
         return guide + "\n" + text
     }
 
     private fun polishPrompt(text: String): String {
         val guide = """
-            用户写了一句英文，请你批改。像老师改作业一样：指出问题、给改法、讲原因。
+            用户写了一句英文（也可能中英混写），请你批改。像老师改作业一样：指出问题、给改法、讲原因。
 
             【错误清单】
             一条一行，格式：原句片段 → 错在哪 → 改成什么。
@@ -147,8 +159,9 @@ object Prompts {
             • 不要为了显得严格而硬挑错，没错就说没错。
             • 改写要保留用户想表达的意思，不要换成另一个意思。
             • 中文讲解，英文只出现在原句片段和改后的句子里。
+            • 如果句子中英混写，先用一句话说清哪几个中文词应该换成英文，再给完整的英文改写；不要整句推翻重写。
 
-            用户写的英文：
+            用户写的句子（可能是纯英文，也可能中英混写）：
         """.trimIndent()
         return guide + "\n" + text
     }

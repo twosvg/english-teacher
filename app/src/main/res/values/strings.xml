@@ -9,8 +9,10 @@
 
     <string name="btn_word">生词</string>
     <string name="btn_sentence">拆句</string>
-    <string name="btn_translate">汉译英</string>
+    <string name="btn_translate">翻译</string>
     <string name="btn_polish">批改</string>
+    <string name="btn_floating">悬浮窗</string>
+    <string name="btn_notes">笔记本</string>
 
     <string name="action_stop">停止</string>
     <string name="action_regenerate">重新生成</string>
@@ -25,7 +27,7 @@
     <string name="status_stopped">已停止</string>
     <string name="loading">正在思考…</string>
 
-    <string name="result_placeholder">结果会显示在这里。\n\n• 点「生词」：词性音标、释义、在这句话里的意思、搭配、例句、易混词\n• 点「拆句」：主干、修饰成分、断句、直译与顺译、句型标志、难在哪\n• 点「汉译英」：最推荐 / 很随意 / 正式一点 三版，逐条说明\n• 点「批改」：错误清单、更自然的说法、中式英语成因、一句话要点\n\n在 X、Instagram、Chrome 里选中英文，选择菜单里的「英文老师」，会直接弹出卡片。</string>
+    <string name="result_placeholder">结果会显示在这里。\n\n• 生词：词性音标、释义、在这句话里的意思、搭配、例句、易混词\n• 拆句：主干、修饰成分、断句、直译与顺译、句型标志、难在哪\n• 翻译：中译英、英译中，都给三版并逐条说明\n• 批改：错误清单、更自然的说法、中式英语成因、一句话要点\n\n点下面「悬浮窗」，会生成一个常驻小球。在 X、Instagram 里选中文字 → 复制 → 点小球，解析面板直接浮在原界面上面，不用切走。\nChrome 等支持系统菜单的 App，也可以选中后从菜单里点「英文老师」。</string>
 
     <!-- 卡片 -->
     <string name="tab_word">讲解</string>
@@ -56,8 +58,40 @@
     <string name="err_no_key">还没配置 API Key。先点右上角「设置」填好，再试。</string>
     <string name="err_no_key_card">还没配置 API Key。\n\n先点「关闭」回到原 App，打开「英文老师」主界面，点右上角「设置」填入 API Key，再回来重新选中文字。</string>
     <string name="err_need_english">这个功能需要英文输入。</string>
-    <string name="err_need_chinese">汉译英需要输入中文；如果是要改英文，请点「批改」。</string>
+    <string name="err_need_chinese">翻译需要一段中文或英文。</string>
     <string name="err_no_text">没读到选中的文字。请重新选中后再点「英文老师」。</string>
     <string name="err_nothing_to_copy">还没有内容可以复制。</string>
     <string name="copied">已复制</string>
+
+    <!-- 悬浮窗 -->
+    <string name="bubble_text">英</string>
+    <string name="close_symbol">✕</string>
+    <string name="floating_started">悬浮球已开启，去别的 App 里试试</string>
+    <string name="floating_stopped">悬浮球已关闭</string>
+    <string name="floating_channel">悬浮窗</string>
+    <string name="floating_channel_desc">保持悬浮球常驻，随时查词</string>
+    <string name="floating_notification_title">英文老师悬浮球</string>
+    <string name="floating_notification_text">点悬浮球查词，可拖动换位置</string>
+    <string name="floating_notification_close">关闭悬浮窗</string>
+
+    <string name="overlay_read_clipboard">读剪贴板</string>
+    <string name="overlay_source_hint">输入或粘贴要查的文字</string>
+    <string name="overlay_follow_hint">追问，比如「为什么用这个时态」</string>
+    <string name="overlay_send">发送</string>
+    <string name="overlay_save">保存</string>
+    <string name="overlay_empty_hint">在别的 App 里选中文字 → 复制 → 点这里，面板会自动读取。\n也可以直接在上面输入。</string>
+    <string name="overlay_clipboard_empty">剪贴板里没有文字，先选中并复制一段。</string>
+    <string name="overlay_need_first">先做一次解析，再追问。</string>
+    <string name="overlay_no_permission">没有悬浮窗权限，请回到英文老师里重新开启。</string>
+    <string name="overlay_permission_title">需要「显示在其他应用上层」</string>
+    <string name="overlay_permission_message">悬浮球要浮在 X、Chrome 等 App 上面，需要这个权限。\n\n接下来会跳到系统设置，找到「英文老师」，打开「允许显示在其他应用的上层」，然后返回即可。</string>
+    <string name="overlay_permission_open">去开启</string>
+
+    <!-- 笔记本 -->
+    <string name="notes_title">笔记本</string>
+    <string name="notes_empty">还没有保存的笔记。\n\n在解析结果里点「保存」，就会存到这里。</string>
+    <string name="notes_saved">已保存到笔记本</string>
+    <string name="notes_delete">删除</string>
+    <string name="notes_delete_confirm">确定删除这条笔记？删了找不回来。</string>
+    <string name="notes_detail_title">笔记详情</string>
 </resources>
