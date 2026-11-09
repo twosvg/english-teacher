@@ -27,19 +27,43 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # 只装 platform-tools。默认值里的 tools 包已被 Google 从 SDK 仓库删除，
+      # 沿用默认值会报 "Failed to find package 'tools'" 直接失败。
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        continue-on-error: true
+        with:
+          packages: 'platform-tools'
 
+      # 兜底：即使上面的 action 失败，runner 镜像自带的 SDK 仍然可用。
       - name: Install Android SDK packages
+        continue-on-error: true
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          SDKMANAGER="$(command -v sdkmanager || true)"
+          if [ -z "$SDKMANAGER" ] || [ ! -x "$SDKMANAGER" ]; then
+            for candidate in "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager; do
+              if [ -x "$candidate" ]; then
+                SDKMANAGER="$candidate"
+                break
+              fi
+            done
+          fi
+          echo "sdkmanager = $SDKMANAGER"
+          if [ -x "$SDKMANAGER" ]; then
+            yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+            "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0" || true
+          fi
+
+      - name: Show Android SDK state
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/platforms" 2>/dev/null || true
+          ls "$ANDROID_HOME/build-tools" 2>/dev/null || true
 
       - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
-          cache-read-only: false
 
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon --stacktrace
@@ -47,7 +71,6 @@ jobs:
       - name: Show APK info
         run: |
           ls -lh app/build/outputs/apk/debug/
-          echo "---"
           du -h app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload APK artifact
