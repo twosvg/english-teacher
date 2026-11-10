@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="38dp"
-    android:layout_height="38dp"
+    android:layout_width="46dp"
+    android:layout_height="46dp"
     android:background="@drawable/bg_bubble">
 
     <TextView
@@ -10,6 +10,6 @@
         android:gravity="center"
         android:text="@string/bubble_text"
         android:textColor="@color/bubble_text"
-        android:textSize="15sp"
+        android:textSize="17sp"
         android:textStyle="bold" />
 </FrameLayout>

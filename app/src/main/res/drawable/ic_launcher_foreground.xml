@@ -5,11 +5,11 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 字母 S：一条圆头笔画盘成，Surflect 的首字母 -->
+    <!-- 字母 S：以 54,54 为中心，笔画跨度 44×58，圆头收尾 -->
     <path
-        android:pathData="M71,36 C64,25 46,22 36,31 C26,40 31,50 45,55 C59,60 68,66 63,75 C57,84 39,83 30,72"
+        android:pathData="M74,38 C68,28 52,26 42,33 C32,40 35,50 50,55 C65,60 76,66 71,75 C66,84 48,84 37,74"
         android:strokeColor="#FFFFFF"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:strokeWidth="6.5" />
+        android:strokeWidth="7" />
 </vector>

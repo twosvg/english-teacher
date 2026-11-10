@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
@@ -74,6 +75,9 @@ class FloatingService : Service() {
     private var sourceView: EditText? = null
     private var followView: EditText? = null
     private var scroll: ScrollView? = null
+    private var footerView: View? = null
+    private var panelParams: WindowManager.LayoutParams? = null
+    private var basePanelHeight = 0
 
     private val transcript = StringBuilder()
     private var lastFlush = 0L
@@ -347,13 +351,29 @@ class FloatingService : Service() {
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.BOTTOM
-        params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        // 键盘自己管：让系统不要挪我们的窗口，避免面板被顶得乱跳
+        params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+        panelParams = params
+        basePanelHeight = height
 
         resultView = view.findViewById(R.id.overlayResult)
         sourceView = view.findViewById(R.id.overlaySource)
         followView = view.findViewById(R.id.overlayFollowUp)
         scroll = view.findViewById(R.id.overlayScroll)
+        footerView = view.findViewById(R.id.overlayFooter)
         Typefaces.body(this)?.let { typeface -> resultView?.typeface = typeface }
+
+        val focusListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                applyPanelMode(true)
+            } else {
+                scheduleExitTyping()
+            }
+        }
+        sourceView?.onFocusChangeListener = focusListener
+        followView?.onFocusChangeListener = focusListener
+        scroll?.isClickable = true
+        scroll?.setOnClickListener { finishTyping() }
 
         view.findViewById<View>(R.id.overlayClose).setOnClickListener { hidePanel() }
         view.findViewById<View>(R.id.overlayCloseBottom).setOnClickListener { hidePanel() }
@@ -387,6 +407,7 @@ class FloatingService : Service() {
         session = null
         val view = panel
         panel = null
+        panelParams = null
         if (view != null) {
             try {
                 windowManager.removeView(view)
@@ -398,7 +419,51 @@ class FloatingService : Service() {
         sourceView = null
         followView = null
         scroll = null
+        footerView = null
         transcript.setLength(0)
+    }
+
+    /**
+     * 输入时把面板挪到屏幕上半部并压矮，键盘在下半部，两者互不遮挡。
+     * 不依赖系统 resize（悬浮窗在多数机型上不响应），所以不会来回跳。
+     */
+    private fun applyPanelMode(typing: Boolean) {
+        val view = panel ?: return
+        val params = panelParams ?: return
+        val screenHeight = resources.displayMetrics.heightPixels
+        if (typing) {
+            params.gravity = Gravity.TOP
+            params.height = (screenHeight * 0.38f).toInt()
+            params.y = dp(16)
+            footerView?.visibility = View.GONE
+        } else {
+            params.gravity = Gravity.BOTTOM
+            params.height = basePanelHeight
+            params.y = 0
+            footerView?.visibility = View.VISIBLE
+        }
+        try {
+            windowManager.updateViewLayout(view, params)
+        } catch (t: Throwable) {
+            // 忽略
+        }
+    }
+
+    private fun scheduleExitTyping() {
+        main.postDelayed({
+            val view = panel
+            if (view != null && !view.hasFocus()) applyPanelMode(false)
+        }, 120)
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    /** 收起键盘并让面板落回底部全高，好让解析结果占满屏幕。 */
+    private fun finishTyping() {
+        val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        manager?.hideSoftInputFromWindow(panel?.windowToken, 0)
+        panel?.findFocus()?.clearFocus()
+        applyPanelMode(false)
     }
 
     // ---------------------------------------------------------------- 交互逻辑
@@ -447,6 +512,7 @@ class FloatingService : Service() {
         lastFlush = 0L
         setResult("")
         highlight(mode)
+        finishTyping()
 
         session?.cancel()
         session = CoachSession(client, settings, sessionListener)
@@ -475,6 +541,7 @@ class FloatingService : Service() {
         lastFlush = 0L
         setResult(transcript.toString())
         active.followUp(question)
+        finishTyping()
     }
 
     private fun regenerate() {

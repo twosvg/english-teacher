@@ -36,8 +36,9 @@
     <color name="icon_background">#153258</color>
 
     <!-- 悬浮球：20% 透明 -->
-    <color name="bubble_fill">#33153258</color>
-    <color name="bubble_stroke">#6E153258</color>
+    <color name="bubble_fill">#59153258</color>
+    <color name="bubble_stroke">#8C153258</color>
     <color name="bubble_text">#153258</color>
 </resources>
+
 
